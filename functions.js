@@ -99,7 +99,7 @@ handleLikePost() //expecting 3 but returns 1
 
 /*Solution is to return a function from another function. program calls the addLike function outside the scope it was defined in.
 this was accomplished by returning the inner function addLike from the outer function handleLikePost and storing a reference to it 
-named like, which can be called as many times as desired. program preserves likeCount value between function calls. 
+in a variable entitled like, which can be called as many times as desired. program preserves likeCount value between function calls. 
 
 program returns the inner function addLike from the outer function handleLikePost. when handleLikePost is called it returns 
 the function addLike(). a variable called like was created outside of function references the inner function addLike(), which keeps 
@@ -120,8 +120,8 @@ the inner function closes over likeCount and keeps the likeCount variable alive.
 
 Closures have the following criteria:
 1. Closures are a property of JavaScript functions - no other data types have closures.
-2. Must call function in different scope than where function was original defined. - can only preserve likeCount when I returned allLike()
-from the outer function. By virtue of closure, able to keep the value alive to remember its value. 
+2. Must call function in different scope than where function was original defined.  this means can only preserve likeCount when I 
+returned addLike() from the outer function. By virtue of closure, able to keep the value alive to remember its value. 
 
 Closures matter and make functions valuable because they allow us to remember values. Closures allows program to remember and or keep track
 of certain values. 
@@ -157,3 +157,126 @@ const doubleLike = handleLikePost(2)
 console.log(doubleLike()) //returns 2
 console.log(doubleLike()) //returns 4
 console.log(doubleLike()) //returns 6
+
+/*Challenge: Write a countdown function with a hard-coded starting number inside closure.
+program grabs the value 11 from the outer scope, which becomes part of the closure of the inner function decrease, which means it will
+be remembered every time I run the decrease function.  the inner function decrease is run with the variable countingDown. 
+countingDown calls the outer function countdown which value is decrease(), which is calling the inner function decrease */
+function countdown() {
+    let countFromNum = 11 
+    return function decrease() {
+      countFromNum -= 1 
+      return countFromNum 
+    }
+  }
+const countingDown = countdown() 
+console.log(countingDown())  //returns 10
+console.log(countingDown())  //returns 9
+console.log(countingDown())  //returns 8
+  
+/*Stretch goalA: Write a countdown function that can count from a provided number with a provided step */
+function countdown(startingNumber, step) {
+    let countFromNum = startingNumber 
+    return function decrease() {
+      countFromNum -= step 
+      return countFromNum 
+    }
+  }
+const countingDown = countdown(11, 1) 
+console.log(countingDown())  //returns 10
+console.log(countingDown())  //returns 9
+console.log(countingDown())  //returns 8
+
+/*Stretch goalB: Write a countdown function that can count from a provided number with a provided step */
+function countdown(startingNumber, step) {
+    let countFromNum = startingNumber + step  //to start with the number I am actually passing in, will begin with 12
+    return function decrease() {
+      countFromNum -= step 
+      return countFromNum 
+    }
+  }
+const countingDown = countdown(20, 5) 
+console.log(countingDown())  //returns 20
+console.log(countingDown())  //returns 15
+console.log(countingDown())  //returns 10
+
+
+/*BETTER FUNCTIONS WITH DEFAULT PARAMETERS
+
+Function accepts a number (degrees celsius) and returns degrees fahrenheit
+Can specify the number of decimal places using a new string method called toFixed(). toFixed returns a string, 
+so need to wrap expression in the Number function, where the results of the expression is passed to the Number function. This 
+creates an explicit type conversion from string to number  */
+
+function convertTemperature(celsius) {
+    // celsius to fahrenheit
+  const fahrenheit = celsius * 1.8 + 32 
+  return fahrenheit 
+}
+console.log(convertTemperature(21))  //returns 69.80000000000001
+
+//using toFixed method to control the number of decimal places
+function convertTemperature(celsius, decimalPlaces) {
+    // celsius to fahrenheit
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces))  //explicit type conversion from string to number
+}
+console.log(convertTemperature(21, 1))  //returns 69.8
+
+/*If i want to update the function so that decimalPlaces is optional, i can add an if statement. If an argument is not provided, JavaScript
+returns an undefined value because it treats the unprovided argument as a variable that has not been initialized.  This approach works but 
+the local variable decimalPlaces is being used 2x. Can use short-circuiting to make code more efficient*/
+function convertTemperature(celsius, decimalPlaces) {
+    // celsius to fahrenheit
+  if (!decimalPlaces) {
+     decimalPlaces = 1 
+  }
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces)) 
+}
+console.log(convertTemperature(21))  //returns 69.8
+
+/*using short-circuiting. use the or condition to say if decimalPlaces is a falsy value and that argument is not provided, 
+then set to default value of 1. the || operator evaluates operands as true (truthy) or false (falsy). if 1st operand is true, it stops 
+at first and returns value of 1st operand.
+This is a better solution but still has challenge of handling the case of 0 decimals. 
+*/
+function convertTemperature(celsius, decimalPlaces) {
+    // celsius to fahrenheit
+    decimalPlaces = decimalPlaces || 1  //did not receive argument for decimalPlaces so a value of undefined is returned, and undefined values
+                                        //are falsy. the || operator evaluates 1st operand as false, so it moves to next operand and returns value of 1
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces)) 
+}
+console.log(convertTemperature(21))  //returns 69.8
+
+/*passing 0 as an argument does not remove decimals because 0 is a falsy value. when 0 is coercised to a boolean, it becomes false, which 
+is why I get the default value of 1 decimal places. A better approach to deal with arguments not provided or falsy values passed as 
+arguments is to use default parameter values*/
+function convertTemperature(celsius, decimalPlaces) {
+    // celsius to fahrenheit
+  decimalPlaces = decimalPlaces || 1 
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces)) 
+}
+console.log(convertTemperature(21, 0))  //returns 69.8
+
+/*Default parameter values allows me to say directly on the function parameters that if an argument is not provided and therefore the 
+value is undefined within the function (falsy value), the default value for the parameter will be used. The equal operator =, specifies
+this. So if decimal places is not provided, the default value will be 1. This allows me to remove the short-circuiting expression  */
+function convertTemperature(celsius, decimalPlaces = 1) {
+    // celsius to fahrenheit
+//   decimalPlaces = decimalPlaces || 1 
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces)) 
+}
+console.log(convertTemperature(21))  //no argument for decimalPlaces passed, returns 69.8
+
+/*default parameter values is best way to avoid writing conditionals in function to handle falsy and undefined argument values */
+function convertTemperature(celsius, decimalPlaces = 1) {
+    // celsius to fahrenheit
+//   decimalPlaces = decimalPlaces || 1 
+  const fahrenheit = celsius * 1.8 + 32 
+  return Number(fahrenheit.toFixed(decimalPlaces)) 
+}
+console.log(convertTemperature(21, 0))  //passing 0 as an argument, returns 70. no longer passing a falsy value to a conditional
