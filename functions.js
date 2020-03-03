@@ -284,12 +284,14 @@ console.log(convertTemperature(21, 0))  //passing 0 as an argument, returns 70. 
 /*SHORTER FUNCTION WITH ARROWS FUNCTIONS AND CALLBACK FUNCTIONS
 
 Benefit of arrow functions is that they strip away as much extraneous info as possible. With arrow functions, no longer need the
-function keyword, parenthesis around parameters, the return keyword or curly braces.  All is need is the fat arrow =>.
+function keyword, parenthesis around parameters, the return keyword or curly braces.  All is need is the fat arrow => and parameter(s).
 The arrow function was created to provide a more concise way of creating functions. As well as working with objects and classes easier 
 pertaining to handling the 'this' keyword.  
 
-this function accepts a name and uses template literals to return a capitalized name
+Functions can be used just like any other value. Specifically, functions can be returned from other functions (as seen with Closure).
+If functions can be passed around like other values, functions can be passed to other functions. This is the basis of callback functions. 
 
+this function accepts a name and uses template literals to return a capitalized name  returns John
 */
 const username = 'john' 
 const capitalize = function capitalizeName(name) {          //using variable identifier capitalize to call the function
@@ -298,7 +300,7 @@ const capitalize = function capitalizeName(name) {          //using variable ide
                                                              name.slice(1) - gets the rest of the letters in name*/
 }
 
-/*not using the name of the function to capitalizeName() to call it, can drop the name of the function. Once dropped, it becomes an 
+/*since not using the name of the function capitalizeName() to call it, can drop the name of the function. Once dropped, it becomes an 
 anonymous function .  */
 const capitalize = function(name) {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
@@ -313,14 +315,14 @@ const capitalize = (name) => {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
   }
 
-/*can further simplify code. because there is just one parameter, can drop the parenthesis entirely. will need to add back parenthesis 
+/*can further simplify code. because there is just one parameter, can drop the parenthesis entirely. will need to add back parenthesis if
 there are 2 or more parameters, otherwise will result in error.   */
 const capitalize = name => {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
   }
 
 /*Also, if function body is short enough, can make use of an implicit return. Any code following the => will be interpreted as the function
-body. So curly braces can be removed. 
+body. So curly braces can be removed. The following program will result in an error:
 
 const capitalize = name => 
   return `${name.charAt(0).toUpperCase()}${name.slice(1)}`  
@@ -342,23 +344,66 @@ const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}` //r
 /*using callbacks to greet the user based upon name provided. callback is just a function called after another function. its 'called back'
 from the function that it was used in. callbacks make sure we call one function after the other. the ability to pass a function to another 
 function as a callback is called a higher order function. this allows me to create a function as a function argument and it will be called
-back in the function that it was referenced and executed in.  
+back in the function that it was referenced and executed in.  functions can be passed to other functions. This is the basis of callback 
+functions. 
 
-program returns greeting to user, using capitalize function.
+program is using capitalize function in combination with another function that greets user  using the users capitalized name. 
+the greetUser function will return greeting to user using capitalize function and provide greetUser with the name I want capitalized. 
 will provide the greetUser function with a parameter for name, and execute the capitalize function within greetUser and pass 
 capitalize function the name that it needs. for the 2nd argument of greet user, can provide a callback function. 
-the callback function will take the result of capitalize and use it as an argument for itself to return greeting. callback as a 
+the callback function will take the result of capitalize(name) and use it as an argument for itself to return greeting. callback as a 
 function will accept the capitalized name. finally return the greeting we get from callback to display user.  */
 const username = 'john' 
-const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}`  //returns John
+const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}`  //using arrow function. returns John
 function greetUser(name, callback) {
-  return callback(capitalize(name))   
+  return callback(capitalize(name)) //callback function receives the results of the capitalized function (aka John)
 }
-//greetUser(username, function(name) {})  //function keyword removed and replaced by =>
+//greetUser(username, function(name) {})  //What data does this function receive/what to write as its parameters? Look back to where function is called. function keyword removed and replaced by =>
 const result = greetUser(username, (name) => {
-    return `Hi there, ${name}` 
+    return `Hi there, ${name}` //within callback body, can do whatever with the value
   }) 
 console.log(result)  //returns Hi there, John
 
 //can reduce to shorthand
 const result = greetUser(username, name => `Hi there, ${name}!`) 
+
+/* Challenge: Rewrite your first function from a previous challenge to be an arrow function. */
+function splitBill(amount, numPeople) {
+  return `Each person needs to pay ${amount / numPeople}`
+}
+//rewritten as arrow function.  arrow functions are always anonymous so need to create a variable to store the function
+const splitBill = (amount, numPeople) => {
+  return `Each person needs to pay ${amount / numPeople}` 
+}
+//can remove the return keyword and curly brackets to make more concise by putting all on 1 line
+const splitBill = (amount, numPeople) => `Each person needs to pay ${amount / numPeople}`
+console.log(splitBill(10, 2))  //returns Each person needs to pay 5
+console.log(splitBill(10, 4))  //returns Each person needs to pay 2.5
+console.log(splitBill(10, 5))  //returns Each person needs to pay 2
+
+/*Stretch goal: Rewrite counting down closure in arrow function form. */
+function countdown(startingNumber, step) {
+let countFromNum = startingNumber + step 
+return function decrease() { //need function to keep track of changing number. Closure keeps track and prevents local variable from being dumped 
+  countFromNum -= step 
+  return countFromNum 
+}}
+/*rewritten as arrow function. removed keyword function, created variable countdown to store function, removed name of inner function decrease  */
+const countdown = (startingNumber, step) => {
+  let countFromNum = startingNumber + step 
+  return () => {
+    countFromNum -= step 
+    return countFromNum 
+  }
+}
+/*the arrow function will by default return the expression if there is only 1 expression inside the body of 
+the function. as a result can remover the return statement from inner function and the curly brackets to put the inner function
+on one line */
+const countdown = (startingNumber, step) => {
+  let countFromNum = startingNumber + step 
+  return () => countFromNum -= step 
+}
+const countingDown = countdown(20, 2) 
+console.log(countingDown())  //returns 20
+console.log(countingDown())  //returns 18
+console.log(countingDown())  //returns 16
