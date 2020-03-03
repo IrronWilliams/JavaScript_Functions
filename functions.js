@@ -280,3 +280,85 @@ function convertTemperature(celsius, decimalPlaces = 1) {
   return Number(fahrenheit.toFixed(decimalPlaces)) 
 }
 console.log(convertTemperature(21, 0))  //passing 0 as an argument, returns 70. no longer passing a falsy value to a conditional
+
+/*SHORTER FUNCTION WITH ARROWS FUNCTIONS AND CALLBACK FUNCTIONS
+
+Benefit of arrow functions is that they strip away as much extraneous info as possible. With arrow functions, no longer need the
+function keyword, parenthesis around parameters, the return keyword or curly braces.  All is need is the fat arrow =>.
+The arrow function was created to provide a more concise way of creating functions. As well as working with objects and classes easier 
+pertaining to handling the 'this' keyword.  
+
+this function accepts a name and uses template literals to return a capitalized name
+
+*/
+const username = 'john' 
+const capitalize = function capitalizeName(name) {          //using variable identifier capitalize to call the function
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)}`  /*name.charAt(0) - takes 1st letter of name
+                                                             chain on the toUppercase method  
+                                                             name.slice(1) - gets the rest of the letters in name*/
+}
+
+/*not using the name of the function to capitalizeName() to call it, can drop the name of the function. Once dropped, it becomes an 
+anonymous function .  */
+const capitalize = function(name) {
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+  }
+
+/*program can be converted to an arrow function. Important to remember about arrow functions:
+1. arrow functions are function expressions and therefore assigned to a variable.
+2. arrow functions are anonymous and can't directly give them a name. 
+3. arrow functions do not use any keywords which makes them very easy to write 
+4. just need a fat arrow after the parameters which points towards the body */
+const capitalize = (name) => {
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+  }
+
+/*can further simplify code. because there is just one parameter, can drop the parenthesis entirely. will need to add back parenthesis 
+there are 2 or more parameters, otherwise will result in error.   */
+const capitalize = name => {
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+  }
+
+/*Also, if function body is short enough, can make use of an implicit return. Any code following the => will be interpreted as the function
+body. So curly braces can be removed. 
+
+const capitalize = name => 
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)}`  
+
+if remove curly braces and keep the return keyword, will result in an error: SyntaxError: Unexpected token 'return'. 
+
+This is because the explicit keyword return does not work with arrow functions. By default there is an implicit return. The resolved
+value within the function is always returned.  
+*/
+const username = 'john' 
+const capitalize = name => 
+ `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+console.log(capitalize(username))  /*returns John. calls capitalize which calls the anonymous arrow function, passes the argument 
+                                    username to the parameter name */
+
+//can put everything on one line. 
+const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+
+/*using callbacks to greet the user based upon name provided. callback is just a function called after another function. its 'called back'
+from the function that it was used in. callbacks make sure we call one function after the other. the ability to pass a function to another 
+function as a callback is called a higher order function. this allows me to create a function as a function argument and it will be called
+back in the function that it was referenced and executed in.  
+
+program returns greeting to user, using capitalize function.
+will provide the greetUser function with a parameter for name, and execute the capitalize function within greetUser and pass 
+capitalize function the name that it needs. for the 2nd argument of greet user, can provide a callback function. 
+the callback function will take the result of capitalize and use it as an argument for itself to return greeting. callback as a 
+function will accept the capitalized name. finally return the greeting we get from callback to display user.  */
+const username = 'john' 
+const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}`  //returns John
+function greetUser(name, callback) {
+  return callback(capitalize(name))   
+}
+//greetUser(username, function(name) {})  //function keyword removed and replaced by =>
+const result = greetUser(username, (name) => {
+    return `Hi there, ${name}` 
+  }) 
+console.log(result)  //returns Hi there, John
+
+//can reduce to shorthand
+const result = greetUser(username, name => `Hi there, ${name}!`) 
