@@ -337,7 +337,7 @@ console.log(capitalize(username))  /*returns John. calls capitalize which calls 
                                     username to the parameter name */
 
 //can put everything on one line. 
-const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}`   
+const capitalize = name => `${name.charAt(0).toUpperCase()}${name.slice(1)}` //returns John
 
 /*using callbacks to greet the user based upon name provided. callback is just a function called after another function. its 'called back'
 from the function that it was used in. callbacks make sure we call one function after the other. the ability to pass a function to another 
