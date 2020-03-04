@@ -407,3 +407,68 @@ const countingDown = countdown(20, 2)
 console.log(countingDown())  //returns 20
 console.log(countingDown())  //returns 18
 console.log(countingDown())  //returns 16
+
+
+/*PARTIAL APPLICATION FOR SINGLE-RESPONSIBILITY FUNCTIONS
+
+Will come across higher order functions regularly and they are built into a number of JavaScripts features.
+
+This is the program from Closure section where using variable doubleLike to access the inner function addLike outside the scope 
+it was defined. (Recall handleLikePost returns addLike)  Since handleLikePost is returning a function, it is a higher order function.
+Closure helps to preserve the likeCount variable between function calls. The argument step that was passed to function was also kept/
+preserved because of closure. Closure allows me to keep the step value passed to the outer function around for the next function call.
+Meaning it allows me to create this reusable doubleLike function. Every-time function called and because of closure, was able to save the 
+step value (in this case 2). This approach to using higher order functions to preserve data thru closures is called Partial Application.
+Partial Application refers to the fact that we are applying some but not all of the arguments of the function and waiting for the rest of 
+the arguments.  It is also possible to pass an argument to the inner function as well.  
+*/
+function handleLikePost(step) {
+  let likeCount = 0;
+  return function addLIke() {
+    likeCount += step;
+    return likeCount;  
+  }
+}
+const doubleLike = handleLikePost(2);
+console.log(doubleLike()); //returns 2
+console.log(doubleLike()); //returns 4
+console.log(doubleLike()); //returns 6
+
+/*creating function to obtain user's posts and comments in order to like them. function will allow me to combine a given URL and route
+to be able to fetch data from to get posts and comments. this program fetches data from a rest API. the benefit of higher order functions 
+come into play, particularly with partial application patterns, is that they allow us to have functions with certain values that are preserved.
+Like with the step argument passed to handleLikePost. With this, allows me to make functions more clear as to what they do. They allow 
+me to write better code by allowing functions to have single responsibility. 
+*/
+function getData(baseUrl, route) {
+  fetch(`${baseUrl}${route}`)  //fetch() function accepts base url and route
+    .then(response => response.json())  //then callback used to get back the data
+    .then(data => console.log(data))  //then callback resolves/returns data, and has the name data
+}
+getData('https://jsonplaceholder.typicode.com', '/posts')  //calling getData with base url and route to get posts. returns log will post data
+getData('https://jsonplaceholder.typicode.com', '/comments')
+
+/*rewriting with partial application. begin by creating an anonymous inner function within getData and pass in code used to fetch data.
+Instead of outer function accepting both arguments for baseUrl and route, the inner function will accept the route argument. 
+when calling getData function, whats returned is the inner function. the inner function accepts the argument route. 
+so calling getData returns function(), which accepts argument route; function(route)
+because of this, can assign a descriptive variable to the generic getData function.  since data will be returned from inner function, can
+put the return function in a new reusable variable called getSocialMediaData. This is an immediate benefit with partial application.
+With partial application, when i lock in base url with a closure, i get a more clearly defined single responsibility for the function, 
+which whenever i use getSocialMedia variable, i know exactly what i will be doing. (base url provided gets both posts and comments data).
+
+so with this application, used partially applied function, passed arguments (base url) into outer function getData.  
+i got back a function that locks those values passed in place thru a closure and called it with some other data. a partially applied
+function reduces the number of arguments for a function. so basically have 2 separate functions each with their own argument
+all while given a pattern for the functions to remember data that is passed to it. 
+*/
+function getData(baseUrl) {
+  return function(route) {    
+    fetch(`${baseUrl}${route}`) //inner function accepts route argument. 
+    .then(response => response.json())
+    .then(data => console.log(data))  
+  }  
+}
+const getSocialMediaData = getData('https://jsonplaceholder.typicode.com') //putting function in a reusable variable. base url gets posts and comments
+getSocialMediaData('/comments') //calling inner function and providing it with required argument for route. returns all comments
+getSocialMediaData('/posts') //returns all posts. 
