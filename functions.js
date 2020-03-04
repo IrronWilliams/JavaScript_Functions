@@ -411,7 +411,14 @@ console.log(countingDown())  //returns 16
 
 /*PARTIAL APPLICATION FOR SINGLE-RESPONSIBILITY FUNCTIONS
 
+Instead of having 1 function perform multiple procedures, partial application allows functions to have single, clearly defined 
+responsibilities.  Partial application may not be a technique i may use very often but it is a powerful tool to improve role of 
+functions, their reusability and separation of concerns. Some functions may need to be split apart because the argument data is not 
+tightly coupled and partial application is a valuable pattern/technique to use in this situation. partial application allows me 
+to invoke a function once to store data and reuse the data again and again to reduce repetition and confusion in application.  
+
 Will come across higher order functions regularly and they are built into a number of JavaScripts features.
+
 
 This is the program from Closure section where using variable doubleLike to access the inner function addLike outside the scope 
 it was defined. (Recall handleLikePost returns addLike)  Since handleLikePost is returning a function, it is a higher order function.
@@ -436,16 +443,16 @@ console.log(doubleLike()); //returns 6
 
 /*creating function to obtain user's posts and comments in order to like them. function will allow me to combine a given URL and route
 to be able to fetch data from to get posts and comments. this program fetches data from a rest API. the benefit of higher order functions 
-come into play, particularly with partial application patterns, is that they allow us to have functions with certain values that are preserved.
-Like with the step argument passed to handleLikePost. With this, allows me to make functions more clear as to what they do. They allow 
-me to write better code by allowing functions to have single responsibility. 
+come into play, particularly with partial application patterns, is that they allow us to have functions with certain values that are 
+preserved. Like with the step argument passed to handleLikePost function. With this, allows me to make functions more clear as to what 
+they do. They allow me to write better code by allowing functions to have single responsibility. 
 */
 function getData(baseUrl, route) {
   fetch(`${baseUrl}${route}`)  //fetch() function accepts base url and route
     .then(response => response.json())  //then callback used to get back the data
     .then(data => console.log(data))  //then callback resolves/returns data, and has the name data
 }
-getData('https://jsonplaceholder.typicode.com', '/posts')  //calling getData with base url and route to get posts. returns log will post data
+getData('https://jsonplaceholder.typicode.com', '/posts')  //calling getData with base url and route to get posts. returns log with posts data
 getData('https://jsonplaceholder.typicode.com', '/comments')
 
 /*rewriting with partial application. begin by creating an anonymous inner function within getData and pass in code used to fetch data.
@@ -462,13 +469,83 @@ i got back a function that locks those values passed in place thru a closure and
 function reduces the number of arguments for a function. so basically have 2 separate functions each with their own argument
 all while given a pattern for the functions to remember data that is passed to it. 
 */
-function getData(baseUrl) {
-  return function(route) {    
-    fetch(`${baseUrl}${route}`) //inner function accepts route argument. 
-    .then(response => response.json())
-    .then(data => console.log(data))  
+function getData(baseUrl) { //outer function accepts url argument 
+  return function(route) {  //inner function accepts route argument   
+    fetch(`${baseUrl}${route}`) //fetch function accepts base url and route
+    .then(response => response.json()) //then callback used to get back the data
+    .then(data => console.log(data))  //then callback resolves/returns data, and has the name data which is logged to console
   }  
 }
 const getSocialMediaData = getData('https://jsonplaceholder.typicode.com') //putting function in a reusable variable. base url gets posts and comments
 getSocialMediaData('/comments') //calling inner function and providing it with required argument for route. returns all comments
 getSocialMediaData('/posts') //returns all posts. 
+
+/*program below extends the partially applied function for it to accept a callback to work with and display the comment or post data. 
+this can be done by adding another inner anonymous function and fetch the data within it. through the newly added inner function, can 
+pass a callback as a parameter and replace the console.log with the callback, and pass the resulting data to it. passing the 
+resulting data to the callback will allow me ability to manipulate the data. 
+
+now with the partially applied function with the new inner anonymous function, instead of getting data from 
+getSocialMediaData('/comments') and getSocialMediaData('/posts'), we now get a returned function that takes a callback.
+can now assign the new inner function to a new variable when providing the posts and route to the getSocialMediaData variable. 
+then pass a callback function to the 2 new functions getSocialMediaPosts and getSocialMediaComments. The data from the 2 new functions
+will come in the form of arrays. because of arrays, can iterate over arrays using forEach() method.
+
+when calling getSocialMediaPosts(), notice it accepts a callback; and looking at the callback in the callback function, 
+notice the callback .then(data => callback(data))  gets access to the data, which is an array. within the getSocialMediaPosts 
+function body, can iterate over the array using the forEach array method; and for each post, console log the post title. this returns 
+each of the titles from the post array. 
+*/
+
+//program extends the partially applied function for it to accept a callback to work with and display the comment or post data
+function getData(baseUrl) {
+  return function(route) { 
+    return function(callback) { //adding additional inner function and putting fetch functions within it 
+      fetch(`${baseUrl}${route}`)
+        .then(response => response.json())
+        .then(data => callback(data))  //passing the resulting data to the callback which allows for data manipulation
+    }     
+  }  
+}
+const getSocialMediaData = getData('https://jsonplaceholder.typicode.com')
+const getSocialMediaPosts = getSocialMediaData('/posts') //assigning variable to inner callback function. will get a returned function that takes a callback. data will come in form of an array
+const getSocialMediaComments = getSocialMediaData('/comments')
+
+getSocialMediaPosts(posts => { //when calling function, it will accept a callback and callback function gets access to the data.  
+  posts.forEach(post => console.log(post.title))  //iterating over the array and logging each of the titles in post array. 
+})
+
+//converting series of function declaration to arrow functions (removing function keywords and curly braces)
+const getData = baseUrl =>
+  route =>
+    callback =>  
+      fetch(`${baseUrl}${route}`)
+        .then(response => response.json())
+        .then(data => callback(data))  
+
+//putting on single line:
+const getData = baseUrl => route => callback =>  
+      fetch(`${baseUrl}${route}`)
+        .then(response => response.json())
+        .then(data => callback(data))  
+
+/*HOW FUNCTIONS SHOULD BE NAMED
+
+Functions should include a verb/action and a noun, which is the data the action is being performed on. try to omit conjunctions like
+a & and. keep verb at beginning followed by noun. keep in present tense. say function out loud and test to see if lay person can understand
+what function does. express what action is taking place and to what piece of data within application. make sure i remain consistent with 
+the naming conventions. try using action words get, create, update, delete.  
+*/
+// create a todo
+function createTodo() {}
+// update a todo
+function updateTodo() {}
+// check off todo
+function checkCompleteTodo() {}
+// delete todo
+function deleteTodo() {}
+// getting a todo
+function getTodo() {}
+// getting user
+function fetchUser() {} /*action verbs are same but providing function with a different prefix. may cause confusion. 
+                        update to getUser to keep naming convention consistent */
